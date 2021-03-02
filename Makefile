@@ -12,7 +12,7 @@ INCLUDE = -Iinclude/
 default:all
 
 all:  	$(OBJECTS)
-	$(CC) ${INCLUDE} $(OBJECTS)  -O3  -std=c++11 -o $(EXEC)
+	$(CC) ${INCLUDE} $(OBJECTS)  -O3  -std=c++17 -o $(EXEC)
 
 # To obtain object files
 %.o: %.cpp
