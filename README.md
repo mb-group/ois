@@ -27,14 +27,14 @@ from the root C3D folder. This creates a single executable c3d, which is used to
 
 To use the utility python scripts in the ```utilities``` folder, python dependencies can be installed by
 ```shell
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
 
 # Basic usages
 C3D is built around three execution modes: Model training, sample generation and sample selection. The -h option displays the available options for any mode.
 
 ```shell
-$ c3d -h
+$ ./c3d -h
 	
 Usage: c3d mode [options]
 Available modes are: train, generate, select
@@ -48,7 +48,7 @@ $ mpirun -N X c3d train -f samplesFile [options]
 ```
 Available options are 
 ```shell
-$ c3d train -h
+$ ./c3d train -h
 
 Usage: c3d train -f samplesFile [options]
       -f       : Input file for learning (space-delimited raw format)
@@ -68,7 +68,7 @@ Generate sample from the global statistical model by constraint Markov-Chain Mon
 Available options are 
 
 ```shell
-$ c3d generate -h
+$ ./c3d generate -h
 	
 Usage: c3d generate -f nativeFile -p prmFile [options]
       -f       : Native sample file (space-delimited one-line sample file)
@@ -89,7 +89,7 @@ Select candidate mutants with potential for being orthogonal. The selection crit
 
 Available options are 
 ```shell
-$ c3d select -h
+$ ./c3d select -h
 
 Usage: c3d select -f mutantsFile -t probThreshold [options]]
       -f       : Mutants file, as output by c3d generate (comprising mutations and energies).
@@ -179,7 +179,7 @@ In the following, we will use a toy MSA defined over 63 positions to build our m
 The first necessary step is to convert the MSA from fasta to a format usable by c3d. The fastaToMatrix.py utility serves this purpose
 
 ```shell
-$ python3 utilitiess/fastaToMatrix.py tutorial/msa.fasta msa.dat
+$ python3 utilities/fastaToMatrix.py tutorial/msa.fasta msa.dat
 ```
 
 We can now build the statistical model using the converted MSA. To this aim, we call c3d with the train mode. 
@@ -196,7 +196,7 @@ Two output files are generated: model.prm contains the optimized model parameter
 
 We see that the optimization has not quite converged, so let's extend the optimization for another 500 steps.
 ```shell
-$ mpirun -N 4 c3d train -f msa.dat -p mode.prm -N 5000 -b 500 -o model_extended
+$ mpirun -N 4 c3d train -f msa.dat -p model.prm -N 5000 -b 500 -o model_extended
 ```
 
 While still not perfectly converged, we will use this model for the following analysis. In a practical application, we would continue the training further until reaching better convergence and use more replicas to get better gradient estimates.
@@ -223,7 +223,7 @@ We can now generate candidate mutants by using the generation mode of c3d.  Reme
 Here, we will allow mutations on protein A on positions 3-10. On protein B, we will allow mutations on positions 42-45 and 54-59. Finally, to increase the variability of the generated repertoire, we will generate mutants with a sampling energy of T=2 in the MCMC scheme.
 
 ```shell
-$ c3d generate -f native.dat -p model_final.prm -m 5 -m2 7 -pi tutorial/positions.dat -ns 29 -M 100000 -T 2.0 -o mutants
+$ ./c3d generate -f native.dat -p model_final.prm -m 5 -m2 7 -pi tutorial/positions.dat -ns 29 -M 100000 -T 2.0 -o mutants
 ```
 This generates 100000 mutants (-M option) by constraint MCMC sampling, introducing 5 mutations on protein A (-m 5) and 7 on protein B (-m2 7). We indicate where the split between the two concatenated proteins is in the alignment by the -ns option. Note that this option indicates the (0-based) index of the last position of protein A. The sampling temperature is controlled by the -T option.
 
@@ -234,7 +234,7 @@ To generate candidate orthogonal mutants, we now have to select the subsets of t
 Here, we will select the 5% of mutants with the highest non-cognate energy scores. This is achieved by the selection mode of c3d
 
 ```shell
-$ c3d select -f mutants_orthoEs.dat -t 0.05 -o orthoCandidates
+$ ./c3d select -f mutants_orthoEs.dat -t 0.05 -o orthoCandidates
 ```
 The -t option controls the fraction of mutants to extract from the extreme north-east quadrant of the non-cognate energy plot.
 This generates another mutants file, containing 5000 candidate orthogonal mutants. Note that due to the finite accuracy of the line search to determine the selection threshold, the exact number of mutants can slightly fluctuate around the exact fraction.
