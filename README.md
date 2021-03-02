@@ -1,5 +1,5 @@
 # Computational protein Design by Duplication and Divergence (C3D)
-C3D is a coevolution-based method to generate candiate mutants with orthogonal binding properties. The approach relies on modeling the probability distribution of a joint-multiple sequence alignemnt of two interacting proteins, followed by Monte-Carlo sampling and candidate mutants selection.
+C3D is a coevolution-based method to generate candidate mutants with orthogonal binding properties. The approach relies on modelling the probability distribution of a joint multiple-sequence alignment of two interacting proteins, followed by Monte-Carlo sampling and candidate mutants selection.
 
 The full description of the method can be found in the [original publication](#here).
 
@@ -12,18 +12,18 @@ The full description of the method can be found in the [original publication](#h
 
 **Citation**
 
-Paper link when availble.
+Paper link when available.
 
 # Installation & Requirements
 To compile and run C3D, a working MPI library must be installed. A C++ compiler supporting at least the C++17 standard is required.
-C3D has been tested using [OpenMPI](https://www.open-mpi.org/) on MacOS and Ubuntu.
+C3D has been tested using [OpenMPI](https://www.open-mpi.org/) on macOS and Ubuntu.
 
-To compile the software run
+To compile the software, run
 
 ```shell
 $ make
 ```
-from the root C3D folder. This creates a single executable c3d, which is used to perform the different generation and analysis steps (see a [worked out example](#tutorial)). 
+from the root C3D folder. This creates a single executable c3d, which is used to perform the different generation and analysis steps (see a [worked-out example](#tutorial)). 
 
 To use the utility python scripts in the ```utilities``` folder, python dependencies can be installed by
 ```shell
@@ -31,7 +31,7 @@ $ pip install -r requirements.txt
 ```
 
 # Basic usages
-C3D is built around three exection modes: Model training, sample generation and sample selection. The -h options displays the available options for any mode.
+C3D is built around three execution modes: Model training, sample generation and sample selection. The -h option displays the available options for any mode.
 
 ```shell
 $ c3d -h
@@ -41,7 +41,7 @@ Available modes are: train, generate, select
 No execution mode provided. Exiting.
 ```
 ## Training mode
-Train a generalized potts model (the global statistical model) to sequences in a multiple-sequence alignment. To convert the sequencse in the apropriate format, use the fastaToMatrix.py utility (see [Utility Functions](#utility-functions)). The training is performed by approximate minimization of a L2-regularized log-likelihood function. The gradient is estimated by Markov-Chain Monte-Carlo sampling at each iteration (Boltzman-learning approach). To run **X** parallel replicas to estimate the gradient, run
+Train a generalized potts model (the global statistical model) to sequences in a multiple-sequence alignment. To convert the sequences in the appropriate format, use the fastaToMatrix.py utility (see [Utility Functions](#utility-functions)). The training is performed by approximate minimization of an L2-regularized log-likelihood function. The gradient is estimated by Markov-Chain Monte-Carlo sampling at each iteration (Boltzman-learning approach). To run **X** parallel replicas to estimate the gradient, run
 
 ```shell
 $ mpirun -N X c3d train -f samplesFile [options]
@@ -51,7 +51,7 @@ Available options are
 $ c3d train -h
 
 Usage: c3d train -f samplesFile [options]
-      -f       : Input file for learning (space delimited raw format)
+      -f       : Input file for learning (space-delimited raw format)
       -N       : Total number of sweeps to perform [default 10000]
       -n       : Number of sweeps between recording two samples [default 10]
       -p       : Potts model starting parameters file in prm format
@@ -63,7 +63,7 @@ Usage: c3d train -f samplesFile [options]
 ```
 
 ## Generation mode
-Generate sample from the global statistical model by constraint Markov-Chain Monte-Carlo sampling. The sampling can be restriced to using only a subset of all positions (-pi option). The -m and -m2 options define how many mutations are to be made on the first (resp. second) protein. The  -ns option indicates where the first protein end in the concatenated alignment. The constraint sampling ensures that each generated sample has m (resp. m2) mutations on the first (resp. second) protein.
+Generate sample from the global statistical model by constraint Markov-Chain Monte-Carlo sampling. The sampling can be restricted to using only a subset of all positions (-pi option). The -m and -m2 options define how many mutations are to be made on the first (resp. second) protein. The  -ns option indicates where the first protein end in the concatenated alignment. The constraint sampling ensures that each generated sample has m (resp. m2) mutations on the first (resp. second) protein.
 
 Available options are 
 
@@ -71,21 +71,21 @@ Available options are
 $ c3d generate -h
 	
 Usage: c3d generate -f nativeFile -p prmFile [options]
-      -f       : Native sample file (space delimited one-line sample file)
+      -f       : Native sample file (space-delimited one-line sample file)
       -p       : Potts model parameters file in prm format
       -M       : Number of mutants to compute. [default 100]
       -m       : Number of point mutations per mutant [default 0]
-      -m2      : Number of point mutations per mutant on the second domain [default 0]
+      -m2      : Number of point mutations per mutant on the second protein [default 0]
       -T       : Virtual scaling temperature in the MCMC sampling [default 1].
       -o       : Output prefix for saving files [default "output"]
       -pi      : List of positions (0-based indexes) onto which to restrict the mutations [default None]
-      -ns      : Last index (inclusive, 0-based) of first domain,
-                 used for domain split E computation.  [default None]
+      -ns      : Last index (inclusive, 0-based) of the first protein
+                 used for protein split E computation.  [default None]
       -n       : Number of sweeps between recording two mutants [default 10]
       --seed   : Random number generator seed [default 0 == time].
 ```
 ## Selection mode
-Select candidate mutants with potential for being orthogonal. The selection criteria is the probability threshold, i.e. the fraction of mutants lying in the north-east quadrant of the non-cognate energies (see paper). The absolute threshold are found by iterative line search.
+Select candidate mutants with potential for being orthogonal. The selection criteria is the probability threshold, i.e. the fraction of mutants lying in the north-east quadrant of the non-cognate energies (see paper). The absolute thresholds are found by iterative line search.
 
 Available options are 
 ```shell
@@ -112,18 +112,18 @@ As an example, the sequence **ACKPRY** would be encoded as **1 2 9 13 15 20**.
 A multiple-sequence alignment file is formed by writing a single sequence per line using this format. All sequences in an MSA must have the same number of amino-acids.
 
 ## Model parameters .prm file
-The parameters of a trained model are saved in .prm files. These files can be used to either extend the training, or to generate candidate new mutants by sampling the model defined by these parameters.
+The parameters of a trained model are saved in .prm files. These files can be used to either extend the training or to generate candidate new mutants by sampling the model defined by these parameters.
 
 For a model defined over an alignment having *N* positions, the model parameters are composed of *21N* local biases and *21<sup>2</sup>N(N-1)/2* couplings (see [Methods of the paper](#here) for exact model declaration).
 
-The prm file is organized in three parts. A header line, the local biases section and the couplings sections. No delimiter separates the sections.
+The prm file is organized into three parts. A header line, the local biases section and the couplings sections. No delimiter separates the sections.
 
 The header is composed of one line, containing three space-delimited fields.
 The first is a free text field for description. The second defines the number N of positions in the model, and the third defines the number of symbols in each position (by default 21 = 20 AA + 1 gap symbol).
 
 The fields section contains *21N* lines, each composed of 3 space-delimited fields. The first field defines the positions i, the second the amino-acid index A (in [0,20]) and the third the value of the bias h<sub>i</sub>(A)
 
-The couplings section contains *21<sup>2</sup>N(N-1)/2*, each composed of 5 space-delimited fields. The first fields defines the position i, the second defines the position j (j>i), the third field contains the amino-acid index B (in [0,20]) of the amino-acid in position i, the fourth field contains the amino-acid index B (in [0,20]) of the amino-acid in position j and the fifth field contains the value of the coupling parameter J<sub>ij</sub>(A,B).
+The couplings section contains *21<sup>2</sup>N(N-1)/2*, each composed of 5 space-delimited fields. The first field defines the position i, the second the position j (j>i), the third field contains the amino-acid index B (in [0,20]) of the amino-acid in position i, the fourth field contains the amino-acid index B (in [0,20]) of the amino-acid in position j and the fifth field contains the value of the coupling parameter J<sub>ij</sub>(A,B).
 
 See [an example prm file here](example/example.prm). This is a small toy model defined over 7 amino-acid positions.
 
@@ -188,7 +188,7 @@ $ mpirun -N 4 c3d train -f msa.dat -N 5000 -b 100 -o model
 ```
 This trains a model using 4 parallel replicas for estimating the gradient (mpirun -N 4), computing 5000 sweeps per iteration (-N option) and performing the likelihood maximization for 100 iterations (-b option).
 
-Two output files are generated: model.prm contains the optimized model parameters and model.log contains information regarind the optimization procedure. We can plot evolution of the likelihood from the log file (second column).
+Two output files are generated: model.prm contains the optimized model parameters and model.log contains information regarding the optimization procedure. We can plot the evolution of the likelihood from the log file (second column).
 
 <p align="center">
 <img src="tutorial/img/likelihood1.png" alt="lkelihood1" width="500"/>
@@ -199,12 +199,12 @@ We see that the optimization has not quite converged, so let's extend the optimi
 $ mpirun -N 4 c3d train -f msa.dat -p mode.prm -N 5000 -b 500 -o model_extended
 ```
 
-While still not perfectly converged, we will use this model for the following analysis. In a practical application, we would continue the training further until reaching better convergence and use more replicase to get better gradient estimates.
+While still not perfectly converged, we will use this model for the following analysis. In a practical application, we would continue the training further until reaching better convergence and use more replicas to get better gradient estimates.
 
 <p align="center">
 <img src="tutorial/img/likelihood2.png" alt="lkelihood1" width="500"/>
 </p>
-Before proceeding, we will convert the model parameters to a particular form, i.e. we will shift the parameters to the Ising gauge. This helps ensuring that parameters and energies have a comparable scale.
+Before proceeding, we will convert the model parameters to a particular form, i.e. we will shift the parameters to the Ising gauge. This helps to ensure that parameters and energies have a comparable scale.
 
 ```shell
 $ pyhton3 utilities/prmToIsing.py model_extended.prm model_final.prm
@@ -217,29 +217,29 @@ Before generating candidate mutants, we must again convert the (concatenated) na
 $ python3 utilities/fastaToMatrix.py tutorial/native.fasta native.dat
 ```
 
-We can now generate candidate mutants by using the generation mode of c3d.  Remeber that in this example, we have the first 30 alignment positions corresponding to protein A and the last 33 to protein B. In this example, we will generate mutants with 5 mutations on protein A and 7 on protein B. Furthermore, we want to restrict the positions on which mutations can be introduced to a subset of both proteins. This is achieved by using a [position constraint file](#position-constraint-file) (tutorial/positions.dat). Here, we will allow mutations on protein A on positions 3-10. On protein B, we will allow mutations on positions 42-45 and 54-59. Finally, to increase the variability of the generated repertoire, we will generate mutants with a sampling energy of T=2 in the MCMC scheme.
+We can now generate candidate mutants by using the generation mode of c3d.  Remember that in this example, we have the first 30 alignment positions corresponding to protein A and the last 33 to protein B. In this example, we will generate mutants with 5 mutations on protein A and 7 on protein B. Furthermore, we want to restrict the positions on which mutations can be introduced to a subset of both proteins. This is achieved by using a [position constraint file](#position-constraint-file) (tutorial/positions.dat). Here, we will allow mutations on protein A on positions 3-10. On protein B, we will allow mutations on positions 42-45 and 54-59. Finally, to increase the variability of the generated repertoire, we will generate mutants with a sampling energy of T=2 in the MCMC scheme.
 
 ```shell
 $ c3d generate -f native.dat -p model_final.prm -m 5 -m2 7 -pi tutorial/positions.dat -ns 29 -M 100000 -T 2.0 -o mutants
 ```
-This generate 100000 mutants (-M option) by constraint MCMC sampling, introducing 5 mutations on protein A (-m 5) and 7 on protein B (-m2 7). We indicate where the split between the two concatenated proteins is in the alignemnt by the -ns option. Note that this option indicates the (0-based) index of the last position of protein A. The sampling temperature is controlled by the -T option.
+This generates 100000 mutants (-M option) by constraint MCMC sampling, introducing 5 mutations on protein A (-m 5) and 7 on protein B (-m2 7). We indicate where the split between the two concatenated proteins is in the alignment by the -ns option. Note that this option indicates the (0-based) index of the last position of protein A. The sampling temperature is controlled by the -T option.
 
 This results in a [mutants file](#mutants-file) mutants_orthoEs.dat of 100K lines, containing the mutations and energy scores for each mutant.
 
-To generate candidate orthogonal mutants, we now have to select the subsets of these mutants which have lowest probability of forming non-cognate interaction, i.e. the mutants with highest non-cognate interaction energies ΔE<sub>Inter(A*,B)</sub>,  ΔE<sub>Inter(A,B*)</sub> (see Methods section of the paper for details). To achieve this, we can select a fraction of mutants with the highest non-cognate energy scores in the relevant quadrant of the ΔE<sub>Inter(A*,B)</sub> vs  ΔE<sub>Inter(A,B*)</sub> plane. Here, we will select the 5% of mutants with the highest non-cognate energy scores. This is achieves by the selection mode of c3d
+To generate candidate orthogonal mutants, we now have to select the subsets of these mutants which have the lowest probability of forming non-cognate interaction, i.e. the mutants with the highest non-cognate interaction energies ΔE<sub>Inter(A*,B)</sub>,  ΔE<sub>Inter(A,B*)</sub> (see Methods section of the paper for details). To achieve this, we can select a fraction of mutants with the highest non-cognate energy scores in the relevant quadrant of the ΔE<sub>Inter(A*,B)</sub> vs  ΔE<sub>Inter(A,B*)</sub> plane. Here, we will select the 5% of mutants with the highest non-cognate energy scores. This is achieved by the selection mode of c3d
 
 ```shell
 $ c3d select -f mutants_orthoEs.dat -t 0.05 -o orthoCandidates
 ```
 The -t option controls the fraction of mutants to extract from the extreme north-east quadrant of the non-cognate energy plot.
-This generates another mutants file, containing 5000 candidate orthogonal mutants. Note that due to the finite accuracy of the line search to determine the selectio threshold, the exact number of mutants can slightly fluctuate around the exact fraction.
+This generates another mutants file, containing 5000 candidate orthogonal mutants. Note that due to the finite accuracy of the line search to determine the selection threshold, the exact number of mutants can slightly fluctuate around the exact fraction.
 
-Finally, we want to convert the mutants into a human readable form and a fasta file containing a mutated sequence per mutant.
+Finally, we want to convert the mutants into a human-readable form and a fasta file containing a mutated sequence per mutant.
 The convertMutants.py utility does exactly that
 
 ```shell
 $ python3 utilities/convertMutants.py orthoCandidates_selected.dat native.dat final
 ```
 
-This generates two processed files: final_mutants.fasta and final_mutantsAA.dat. The former is a flat fasta file containing one entry per mutants. The latter contains the formatted mutants.
+This generates two processed files: final_mutants.fasta and final_mutantsAA.dat. The former is a flat fasta file containing one entry per mutant. The latter contains the formatted mutants.
 It is similar to the [mutants file](#mutants-file) format, except that the individual mutations are reported using the one letter amino-acid code instead of the numerical index and the position are 1-based for convenience.
