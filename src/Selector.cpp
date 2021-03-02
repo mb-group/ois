@@ -40,7 +40,7 @@ void SEL_Select(std::string mutantsFile, float probThreshold, std::string outPre
   }
   double m=*std::max_element(std::begin(dEsAsB),std::end(dEsAsB));
  
-  unsigned int nSteps=1000;
+  unsigned int nSteps=10000;
   float t;
   float frac=0;
   float Threshold;
