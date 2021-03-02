@@ -12,7 +12,7 @@ The full description of the method can be found in the [original publication](#h
 
 **Citation**
 
-Paper link when available.
+Paper citation when available.
 
 # Installation & Requirements
 To compile and run C3D, a working MPI library must be installed. A C++ compiler supporting at least the C++17 standard is required.
@@ -110,7 +110,7 @@ A single sequence is encoded as a space-delimited line, containing each amino-ac
 As an example, the sequence **ACKPRY** would be encoded as **1 2 9 13 15 20**.
 
 A multiple-sequence alignment file is formed by writing a single sequence per line using this format. All sequences in an MSA must have the same number of amino-acids.
-
+The [fastaToMatrix.py and matrixToFasta.py](#utility-functions) utilities convert between fasta and the internal format.
 ## Model parameters .prm file
 The parameters of a trained model are saved in .prm files. These files can be used to either extend the training or to generate candidate new mutants by sampling the model defined by these parameters.
 
@@ -204,7 +204,8 @@ While still not perfectly converged, we will use this model for the following an
 <p align="center">
 <img src="tutorial/img/likelihood2.png" alt="lkelihood1" width="500"/>
 </p>
-Before proceeding, we will convert the model parameters to a particular form, i.e. we will shift the parameters to the Ising gauge. This helps to ensure that parameters and energies have a comparable scale.
+
+Before proceeding, we will convert the model parameters to a particular form, i.e. we will shift the parameters to the Ising gauge. This helps to ensure that parameters and energies have a comparable scale (see [this paper](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.87.012707) for details).
 
 ```shell
 $ pyhton3 utilities/prmToIsing.py model_extended.prm model_final.prm
@@ -217,7 +218,9 @@ Before generating candidate mutants, we must again convert the (concatenated) na
 $ python3 utilities/fastaToMatrix.py tutorial/native.fasta native.dat
 ```
 
-We can now generate candidate mutants by using the generation mode of c3d.  Remember that in this example, we have the first 30 alignment positions corresponding to protein A and the last 33 to protein B. In this example, we will generate mutants with 5 mutations on protein A and 7 on protein B. Furthermore, we want to restrict the positions on which mutations can be introduced to a subset of both proteins. This is achieved by using a [position constraint file](#position-constraint-file) (tutorial/positions.dat). Here, we will allow mutations on protein A on positions 3-10. On protein B, we will allow mutations on positions 42-45 and 54-59. Finally, to increase the variability of the generated repertoire, we will generate mutants with a sampling energy of T=2 in the MCMC scheme.
+We can now generate candidate mutants by using the generation mode of c3d.  Remember that in this example, we have the first 30 alignment positions corresponding to protein A and the last 33 to protein B. In this example, we will generate mutants with 5 mutations on protein A and 7 on protein B. Furthermore, we want to restrict the positions on which mutations can be introduced to a subset of both proteins. This is achieved by using a [position constraint file](#position-constraint-file) (tutorial/positions.dat).
+
+Here, we will allow mutations on protein A on positions 3-10. On protein B, we will allow mutations on positions 42-45 and 54-59. Finally, to increase the variability of the generated repertoire, we will generate mutants with a sampling energy of T=2 in the MCMC scheme.
 
 ```shell
 $ c3d generate -f native.dat -p model_final.prm -m 5 -m2 7 -pi tutorial/positions.dat -ns 29 -M 100000 -T 2.0 -o mutants
@@ -226,7 +229,9 @@ This generates 100000 mutants (-M option) by constraint MCMC sampling, introduci
 
 This results in a [mutants file](#mutants-file) mutants_orthoEs.dat of 100K lines, containing the mutations and energy scores for each mutant.
 
-To generate candidate orthogonal mutants, we now have to select the subsets of these mutants which have the lowest probability of forming non-cognate interaction, i.e. the mutants with the highest non-cognate interaction energies ΔE<sub>Inter(A*,B)</sub>,  ΔE<sub>Inter(A,B*)</sub> (see Methods section of the paper for details). To achieve this, we can select a fraction of mutants with the highest non-cognate energy scores in the relevant quadrant of the ΔE<sub>Inter(A*,B)</sub> vs  ΔE<sub>Inter(A,B*)</sub> plane. Here, we will select the 5% of mutants with the highest non-cognate energy scores. This is achieved by the selection mode of c3d
+To generate candidate orthogonal mutants, we now have to select the subsets of these mutants which have the lowest probability of forming non-cognate interaction, i.e. the mutants with the highest non-cognate interaction energies ΔE<sub>Inter(A*,B)</sub>,  ΔE<sub>Inter(A,B*)</sub> (see Methods section of the paper for details). To achieve this, we can select a fraction of mutants with the highest non-cognate energy scores in the relevant quadrant of the ΔE<sub>Inter(A*,B)</sub> vs  ΔE<sub>Inter(A,B*)</sub> plane.
+
+Here, we will select the 5% of mutants with the highest non-cognate energy scores. This is achieved by the selection mode of c3d
 
 ```shell
 $ c3d select -f mutants_orthoEs.dat -t 0.05 -o orthoCandidates
