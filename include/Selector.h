@@ -10,7 +10,9 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include "Utils.h"
+
 
 void SEL_Select(std::string mutantsFile, float probThreshold, std::string outPrefix);
 #endif

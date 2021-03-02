@@ -13,6 +13,7 @@
 #include <iostream>
 #include <ctime>
 #include <random>
+
 typedef unsigned long uInt;
 
 struct Samples{
