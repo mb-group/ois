@@ -199,11 +199,14 @@ We see that the optimization has not quite converged, so let's extend the optimi
 $ mpirun -N 4 c3d train -f msa.dat -p model.prm -N 5000 -b 500 -o model_extended
 ```
 
-While still not perfectly converged, we will use this model for the following analysis. In a practical application, we would continue the training further until reaching better convergence and use more replicas to get better gradient estimates.
+As the log file headers are comments, we can aggregate the logs of the two consecutive runs by simply concatenating model.log and model_extended to plot the total evolution of the optimization.
 
 <p align="center">
 <img src="tutorial/img/likelihood2.png" alt="lkelihood1" width="500"/>
 </p>
+
+While still not perfectly converged, we will use this model for the following analysis. In a practical application, we would continue the training further until reaching better convergence and use more replicas to get better gradient estimates.
+
 
 Before proceeding, we will convert the model parameters to a particular form, i.e. we will shift the parameters to the Ising gauge. This helps to ensure that parameters and energies have a comparable scale (see [this paper](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.87.012707) for details).
 
