@@ -46,6 +46,7 @@ struct Parameters{
   float learningRate;
   float regularizationLambda;
   float T;
+  float T2;
   float probThreshold;
 };
 

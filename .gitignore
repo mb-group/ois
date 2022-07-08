@@ -3,3 +3,5 @@ src/*.o
 *~
 #*
 */#*
+.DS_STORE
+tests/

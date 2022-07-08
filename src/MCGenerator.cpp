@@ -3,9 +3,9 @@
    This file is covered by GPL-3.0 license (see LICENSE file in the root of this project.    
 */
 
-#include "OrthoGenerator.h"
+#include "MCGenerator.h"
 
-void ORT_generate(Samples native, Parameters params, PottsModel model){
+void MC_generate(Samples native, Parameters params, PottsModel model){
 
   //Setup random number generator
   std::mt19937 rndGenerator;
@@ -65,7 +65,7 @@ void ORT_generate(Samples native, Parameters params, PottsModel model){
   float Eintra1_native,Eintra2_native,Einter_native;
   EVT_computeDomainEnergy(model.P, native.data, model.N, model.q,params.nDomainSplit,
 			    Eintra1_native,Eintra2_native,Einter_native);
-  
+
   // Setup initial mutant
   uInt candidateAA;
   uInt* mutant = new uInt[model.N];
@@ -91,28 +91,12 @@ void ORT_generate(Samples native, Parameters params, PottsModel model){
   float Eintra1,Eintra2,Einter;
   EVT_computeDomainEnergy(model.P, mutant, model.N, model.q,params.nDomainSplit,
 			  Eintra1,Eintra2,Einter);
-
-  uInt* AsB = new uInt[model.N];
-  uInt* ABs = new uInt[model.N];
-  float Einter_AsB,Einter_ABs,Etmp1,Etmp2;
-
-  std::memcpy(ABs,&native.data[0],model.N*sizeof(uInt));
-  for(uInt mut2: positionsDom2)
-    ABs[mut2]=mutant[mut2];
-  EVT_computeDomainEnergy(model.P, ABs, model.N, model.q,params.nDomainSplit,Etmp1,Etmp2,Einter_ABs);
-  std::memcpy(AsB,&native.data[0],model.N*sizeof(uInt));
-  for(uInt mut1: positionsDom1)
-    AsB[mut1]=mutant[mut1];
-  EVT_computeDomainEnergy(model.P, AsB, model.N, model.q,params.nDomainSplit,Etmp1,Etmp2,Einter_AsB);
-
-  // Compute M mutants by conditional-MCMC
+  // Compute M mutants by MCMC
   uInt iSwitch,posSwitch,posNew,oldAA;
   float Eintra1_new,Eintra2_new,Einter_new;
+  float Einter_RsL,Einter_RLs,Etmp1,Etmp2;
   float deltaE;
   float domSelector;
-  
-
-  float Einter_AsB_new,Einter_ABs_new;
   for (uInt i=0;i<params.nMutants;i++){
     for(uInt move=0;move<model.N*params.sweepsPerSample;move++){
       // Perform a MC step: Select positions and AA to mutate, evaluate energy change, accept by Metropolis.
@@ -124,6 +108,17 @@ void ORT_generate(Samples native, Parameters params, PottsModel model){
 	do{
 	  posNew=mutatePositionsDom1[rand()%mutatePositionsDom1.size()];
 	}while(std::find(positionsDom1.begin(),positionsDom1.end(),posNew) != positionsDom1.end());
+
+	//Select new AA
+	do{
+	  candidateAA=rand()%model.q;
+	}while(candidateAA == mutant[posNew]);
+	//Compute dE of canidate mutation
+	oldAA=mutant[posSwitch];
+	mutant[posSwitch]=native.data[posSwitch];
+	mutant[posNew]=candidateAA;
+	EVT_computeDomainEnergy(model.P, mutant, model.N, model.q,params.nDomainSplit,
+				Eintra1_new,Eintra2_new,Einter_new);
       }
       else{ //Mutate on domain 2
 	//Select new site to mutate
@@ -132,46 +127,23 @@ void ORT_generate(Samples native, Parameters params, PottsModel model){
         do{
           posNew=mutatePositionsDom2[rand()%mutatePositionsDom2.size()];
         }while(std::find(positionsDom2.begin(),positionsDom2.end(),posNew) != positionsDom2.end());
+        //Select new AA
+        do{
+          candidateAA=rand()%model.q;
+        }while(candidateAA == mutant[posNew]);
+        //Compute dE of canidate mutation
+        oldAA=mutant[posSwitch];
+        mutant[posSwitch]=native.data[posSwitch];
+        mutant[posNew]=candidateAA;
+        EVT_computeDomainEnergy(model.P, mutant, model.N, model.q,params.nDomainSplit,
+                                Eintra1_new,Eintra2_new,Einter_new);
       }
-
-      //Select new AA
-      do{
-	candidateAA=rand()%model.q;
-      }while(candidateAA == mutant[posNew]);
-
-      //Compute partial dE of canidate mutation
-      oldAA=mutant[posSwitch];
-      mutant[posSwitch]=native.data[posSwitch];
-      mutant[posNew]=candidateAA;
-      EVT_computeDomainEnergy(model.P, mutant, model.N, model.q,params.nDomainSplit,
-			      Eintra1_new,Eintra2_new,Einter_new);
-      
-      std::memcpy(ABs,&native.data[0],model.N*sizeof(uInt));
-      for(uInt mut2: positionsDom2)
-	ABs[mut2]=mutant[mut2];
-      std::memcpy(AsB,&native.data[0],model.N*sizeof(uInt));
-      for(uInt mut1: positionsDom1)
-	AsB[mut1]=mutant[mut1];
-      if(posNew<=params.nDomainSplit){
-	AsB[posSwitch]=native.data[posSwitch];
-	AsB[posNew]=candidateAA;
-      }
-      else{
-	ABs[posSwitch]=native.data[posSwitch];
-	ABs[posNew]=candidateAA;
-      }
-      EVT_computeDomainEnergy(model.P, ABs, model.N, model.q,params.nDomainSplit,Etmp1,Etmp2,Einter_ABs_new);
-      EVT_computeDomainEnergy(model.P, AsB, model.N, model.q,params.nDomainSplit,Etmp1,Etmp2,Einter_AsB_new);
-            
-      //Accept the mutation by conditional Metropolis:
-      // dE = (E_new - E_old) - (E(A*,B)_new-E(A*,B)_old) - (E(A,B*)_new - E(A,B*)_old)
-      deltaE =((Einter_new - Einter) + (Eintra1_new - Eintra1) + (Eintra2_new - Eintra2) - params.T2*(Einter_AsB_new - Einter_AsB) - params.T2*(Einter_ABs_new - Einter_ABs));
+      //Accept the mutation by Metropolis
+      deltaE =(Einter_new + Eintra1_new + Eintra2_new - Einter - Eintra1 - Eintra2);
       if (deltaE<0 || std::exp(-deltaE/params.T)>(static_cast<float>(rand())/static_cast<float>(RAND_MAX))){
 	Eintra1=Eintra1_new;
 	Eintra2=Eintra2_new;
 	Einter=Einter_new;
-	Einter_AsB=Einter_AsB_new;
-	Einter_ABs=Einter_ABs_new;
 	if(domSelector<0.5)
 	  positionsDom1[iSwitch]=posNew;
 	else
@@ -181,22 +153,32 @@ void ORT_generate(Samples native, Parameters params, PottsModel model){
 	mutant[posSwitch]=oldAA;
 	mutant[posNew]=native.data[posNew];
       }
-    }      
+  }
+    //Compute interaction energies of mutants with native partners: Einter_RsL, Einter_RLs
+    uInt* RsL = new uInt[model.N];
+    std::memcpy(RsL,&native.data[0],model.N*sizeof(uInt));
+    for(unsigned int k=0;k<params.nPointMutations;k++)
+      RsL[positionsDom1[k]]=mutant[positionsDom1[k]];
+    EVT_computeDomainEnergy(model.P, RsL, model.N, model.q,params.nDomainSplit,Etmp1,Etmp2,Einter_RsL);
+    uInt* RLs = new uInt[model.N];
+    std::memcpy(RLs,&native.data[0],model.N*sizeof(uInt));
+    for(unsigned int k=0;k<params.nPointMutationsDom2;k++)
+      RLs[positionsDom2[k]]=mutant[positionsDom2[k]];
+    EVT_computeDomainEnergy(model.P, RLs, model.N, model.q,params.nDomainSplit,Etmp1,Etmp2,Einter_RLs);
+    
     //After nSweeps sweeps, record the current mutant 
-    for(uInt mut1: positionsDom1)
-      out<<std::left<<std::setw(9)<<std::to_string(native.data[mut1])+
-	"_"+std::to_string(mut1)+"_"+std::to_string(mutant[mut1])<<"\t ";
-	
-    for(uInt mut2: positionsDom2){
-      out<<std::left<<std::setw(9)<<std::to_string(native.data[mut2])+
-	"_"+std::to_string(mut2)+"_"+std::to_string(mutant[mut2])<<"\t ";
+    for(unsigned int k=0;k<params.nPointMutations;k++){
+      out<<std::left<<std::setw(9)<<std::to_string(native.data[positionsDom1[k]])+
+	"_"+std::to_string(positionsDom1[k])+"_"+std::to_string(mutant[positionsDom1[k]])<<"\t ";
+    }
+    for(unsigned int k=0;k<params.nPointMutationsDom2;k++){
+      out<<std::left<<std::setw(9)<<std::to_string(native.data[positionsDom2[k]])+
+	"_"+std::to_string(positionsDom2[k])+"_"+std::to_string(mutant[positionsDom2[k]])<<"\t ";
     }
     
     out<<std::fixed<<std::setprecision(4)<<
       Eintra1-Eintra1_native<<"\t"<<Eintra2-Eintra2_native<<"\t"<<Einter-Einter_native<<"\t"<<
-      Einter_AsB-Einter_native<<"\t"<<Einter_ABs-Einter_native<<std::endl;
+      Einter_RsL-Einter_native<<"\t"<<Einter_RLs-Einter_native<<std::endl;
   }
   delete[] mutant;
-  delete[] AsB;
-  delete[] ABs;
 }

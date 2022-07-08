@@ -35,7 +35,7 @@ Parameters IOHandler::loadArgsTrain(int argc, char** argv){
   return params;
 }
 
-Parameters IOHandler::loadArgsOrtho(int argc, char** argv){
+Parameters IOHandler::loadArgsMCGenerate(int argc, char** argv){
   //If help option or nothing passed as arguments, display help and exit
   if(argc==2 || !string(argv[2]).compare("-h") || !string(argv[2]).compare("--help")){
     cout<<"Usage: c3d generate -f nativeFile -p prmFile [options]"<<endl;
@@ -45,6 +45,30 @@ Parameters IOHandler::loadArgsOrtho(int argc, char** argv){
     cout<<"          -m       : Number of point mutations per mutant [default 0]"<<endl;
     cout<<"          -m2      : Number of point mutations per mutant on the second protein [default 0]"<<endl;
     cout<<"          -T       : Virtual scaling temperature in the MCMC sampling [default 1]."<<endl;
+    cout<<"          -o       : Output prefix for saving files [default \"output\"]"<<endl;
+    cout<<"          -pi      : List of positions (0-based indexes) onto which to restrict the mutations [default None]"<<endl;
+    cout<<"          -ns      : Last index (inclusive, 0-based) of first protein, \n                  "
+                                "used for protein split E computation.  [default None]"<<endl;
+    cout<<"          -n       : Number of sweeps between recording two mutants [default 10]"<<endl;
+    cout<<"          --seed   : Random number generator seed [default 0 == time]."<<endl;
+    exit(0);
+  }
+
+  Parameters params=parseInputArgs(argc,argv);
+  return params;
+}
+
+Parameters IOHandler::loadArgsOrtho(int argc, char** argv){
+  //If help option or nothing passed as arguments, display help and exit
+  if(argc==2 || !string(argv[2]).compare("-h") || !string(argv[2]).compare("--help")){
+    cout<<"Usage: c3d ortho -f nativeFile -p prmFile [options]"<<endl;
+    cout<<"          -f       : Native sample file (space delimited one-line sample file)"<<endl;
+    cout<<"          -p       : Potts model parameters file in prm format"<<endl;
+    cout<<"          -M       : Number of mutants to compute. [default 100]"<<endl;
+    cout<<"          -m       : Number of point mutations per mutant [default 0]"<<endl;
+    cout<<"          -m2      : Number of point mutations per mutant on the second protein [default 0]"<<endl;
+    cout<<"          -T       : Virtual scaling temperature in the MCMC sampling [default 1]."<<endl;
+    cout<<"          -T2      : Virtual scaling temperature weighting the relative importance between dE and dE_ortho [default 1]."<<endl;
     cout<<"          -o       : Output prefix for saving files [default \"output\"]"<<endl;
     cout<<"          -pi      : List of positions (0-based indexes) onto which to restrict the mutations [default None]"<<endl;
     cout<<"          -ns      : Last index (inclusive, 0-based) of first protein, \n                  "
@@ -161,6 +185,10 @@ Parameters IOHandler::parseInputArgs(int argc, char** argv){
     }
     if(!string(argv[i]).compare("-T")){
       params.T = atof(argv[i+1]);
+      i++;
+    }
+    if(!string(argv[i]).compare("-T2")){
+      params.T2 = atof(argv[i+1]);
       i++;
     }
     if(!string(argv[i]).compare("-t")){

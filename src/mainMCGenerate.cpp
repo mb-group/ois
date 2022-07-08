@@ -7,11 +7,11 @@
 #include <mpi.h>
 #include <time.h>  
 #include "IOHandler.h"
-#include "OrthoGenerator.h"
+#include "MCGenerator.h"
 
 using namespace std;
 
-int mainGenerate(int argc, char** argv){
+int mainMCGenerate(int argc, char** argv){
 
   // Setup MPI 
   int mpi_rank;
@@ -19,7 +19,7 @@ int mainGenerate(int argc, char** argv){
 
   // Parse parameters and setup run
   IOHandler io;
-  Parameters params = io.loadArgsOrtho(argc,argv);
+  Parameters params = io.loadArgsMCGenerate(argc,argv);
   if(params.prmInputFile==""){
     cout<<"No prm file provided."<<endl;
     return -1;
@@ -49,9 +49,9 @@ int mainGenerate(int argc, char** argv){
   if(samples.Nsamples >1){
     cout<<"Warning: Multiple samples provided, first sample in file used as native."<<endl;
   }
-
+  
   // Main routine: Generate the mutants starting from the native sample
-  ORT_generate(samples,params,model); 
+  MC_generate(samples,params,model); 
   
   return 0;
 }

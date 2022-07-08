@@ -1,6 +1,6 @@
 # Declaration of variables
 CC = mpic++
-CFLAGS = -O3 -mtune=native -march=native -std=c++17
+CFLAGS = -O3 -mtune=native  -std=c++17
 
 # File names
 EXEC  = c3d

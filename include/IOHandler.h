@@ -19,6 +19,7 @@ class IOHandler{
   void setOutPrefix(std::string out);
   Parameters parseInputArgs(int argc, char** argv);
   Parameters loadArgsTrain(int argc, char** argv);
+  Parameters loadArgsMCGenerate(int argc, char** argv);
   Parameters loadArgsOrtho(int argc, char** argv);
   Parameters loadArgsSelect(int argc, char** argv); 
   

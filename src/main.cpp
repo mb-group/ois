@@ -17,7 +17,7 @@ int main(int argc, char** argv){
   int retVal=1;
   if (argc==1 || std::string(argv[1])=="-h" || std::string(argv[1])=="--help"){
     std::cout<<"Usage: c3d mode [options]"<<std::endl;
-    std::cout<<"Available modes are: train, generate, select"<<std::endl;
+    std::cout<<"Available modes are: train, generate, select, ortho"<<std::endl;
     std::cout<<"No execution mode provided. Exiting."<<std::endl;
     return -1;
   }
@@ -25,10 +25,13 @@ int main(int argc, char** argv){
     retVal=mainTrain(argc,argv);
   }
   else if(!strcmp(argv[1],"generate")){
-    retVal=mainGenerate(argc,argv);
+    retVal=mainMCGenerate(argc,argv);
   }
   else if(!strcmp(argv[1],"select")){
     retVal=mainSelect(argc,argv);
+  }
+  else if(!strcmp(argv[1],"ortho")){
+    retVal=mainOrtho(argc,argv);
   }
   else{
     std::cout<<"Unrecognized execution mode"<<std::endl;
