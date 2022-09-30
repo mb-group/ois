@@ -1,4 +1,4 @@
-/* C3D: Computational protein Design by Duplication and Divergence (2021)
+/* OrthoSeq: Computational protein Design by Duplication and Divergence (2021)
    Author: Duccio Malinverni, St.Jude Children's Research Hospital, Memphis, TN, USA 
    This file is covered by GPL-3.0 license (see LICENSE file in the root of this project.    
 */
@@ -18,7 +18,7 @@ void IOHandler::setOutPrefix(std::string out){
 Parameters IOHandler::loadArgsTrain(int argc, char** argv){
   //If help option or nothing passed as arguments, display help and exit
   if(argc==2 || !string(argv[2]).compare("-h") || !string(argv[2]).compare("--help")){
-    cout<<"Usage: c3d train -f samplesFile [options]"<<endl;
+    cout<<"Usage: orthoseq train -f samplesFile [options]"<<endl;
     cout<<"          -f       : Input file for learning (space delimited raw format)"<<endl;
     cout<<"          -N       : Total number of sweeps to perform [default 10000]"<<endl;
     cout<<"          -n       : Number of sweeps between recording two samples [default 10]"<<endl;
@@ -38,7 +38,7 @@ Parameters IOHandler::loadArgsTrain(int argc, char** argv){
 Parameters IOHandler::loadArgsMCGenerate(int argc, char** argv){
   //If help option or nothing passed as arguments, display help and exit
   if(argc==2 || !string(argv[2]).compare("-h") || !string(argv[2]).compare("--help")){
-    cout<<"Usage: c3d generate -f nativeFile -p prmFile [options]"<<endl;
+    cout<<"Usage: orthoseq generate -f nativeFile -p prmFile [options]"<<endl;
     cout<<"          -f       : Native sample file (space delimited one-line sample file)"<<endl;
     cout<<"          -p       : Potts model parameters file in prm format"<<endl;
     cout<<"          -M       : Number of mutants to compute. [default 100]"<<endl;
@@ -61,7 +61,7 @@ Parameters IOHandler::loadArgsMCGenerate(int argc, char** argv){
 Parameters IOHandler::loadArgsOrtho(int argc, char** argv){
   //If help option or nothing passed as arguments, display help and exit
   if(argc==2 || !string(argv[2]).compare("-h") || !string(argv[2]).compare("--help")){
-    cout<<"Usage: c3d ortho -f nativeFile -p prmFile [options]"<<endl;
+    cout<<"Usage: orthoseq ortho -f nativeFile -p prmFile [options]"<<endl;
     cout<<"          -f       : Native sample file (space delimited one-line sample file)"<<endl;
     cout<<"          -p       : Potts model parameters file in prm format"<<endl;
     cout<<"          -M       : Number of mutants to compute. [default 100]"<<endl;
@@ -85,8 +85,8 @@ Parameters IOHandler::loadArgsOrtho(int argc, char** argv){
 Parameters IOHandler::loadArgsSelect(int argc, char** argv){
   //If help option or nothing passed as arguments, display help and exit
   if(argc==2 || !string(argv[2]).compare("-h") || !string(argv[2]).compare("--help")){
-    cout<<"Usage: c3d select -f mutantsFile -t probThreshold [options]]"<<endl;
-    cout<<"          -f       : Mutants file, as output by c3d generate (comprising mutations and energies)."<<endl;
+    cout<<"Usage: orthoseq select -f mutantsFile -t probThreshold [options]]"<<endl;
+    cout<<"          -f       : Mutants file, as output by orthoseq generate (comprising mutations and energies)."<<endl;
     cout<<"          -t       : Probability threshold (in [0,1]) to select orthogonal mutants."<<endl;
     cout<<"          -o       : Output prefix for saving files [default \"output\"]"<<endl;
     exit(0);

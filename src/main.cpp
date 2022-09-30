@@ -1,4 +1,4 @@
-/* C3D: Computational protein Design by Duplication and Divergence (2021)
+/* OrthoSeq: Computational protein Design by Duplication and Divergence (2022)
    Author: Duccio Malinverni, St.Jude Children's Research Hospital, Memphis, TN, USA 
    This file is covered by GPL-3.0 license (see LICENSE file in the root of this project.    
 */
@@ -16,7 +16,7 @@ int main(int argc, char** argv){
   // Select the running mode.
   int retVal=1;
   if (argc==1 || std::string(argv[1])=="-h" || std::string(argv[1])=="--help"){
-    std::cout<<"Usage: c3d mode [options]"<<std::endl;
+    std::cout<<"Usage: orthoseq  mode [options]"<<std::endl;
     std::cout<<"Available modes are: train, generate, select, ortho"<<std::endl;
     std::cout<<"No execution mode provided. Exiting."<<std::endl;
     return -1;
