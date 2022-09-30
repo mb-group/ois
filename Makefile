@@ -3,7 +3,7 @@ CC = mpic++
 CFLAGS = -O3 -mtune=native  -std=c++17
 
 # File names
-EXEC  = orthoseq
+EXEC  = ois
 SOURCES = $(wildcard src/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 INCLUDE = -Iinclude/ 
