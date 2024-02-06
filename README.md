@@ -1,7 +1,7 @@
-# OIS: Orthogonal Interacting Sequences
+\0;95;0c# OIS: Orthogonal Interacting Sequences
 OIS is a coevolution-based method to generate candidate mutants with orthogonal binding properties. The approach relies on modelling the probability distribution of a joint multiple-sequence alignment of two interacting proteins, followed by Monte-Carlo sampling and candidate mutants selection.
 
-The full description of the method can be found in the [original publication](#here).
+The full description of the method can be found in the [original publication](https://www.science.org/doi/10.1126/scisignal.abm4484).
 
 **Table of content**
   1. [Installation & Requirements](#installationrequirements-1)	
